@@ -30,7 +30,7 @@ public class PacketUtil {
     }
 
     @ZenMethod
-    public static void sendToAllClientPlayer(String id, IData data) {
+    public static void sendToAllClientPlayers(String id, IData data) {
         final S2CMessage msg = new S2CMessage();
         wrap(msg.getTag(), id, data);
         NetworkHandler.instance.sendToAll(msg);
