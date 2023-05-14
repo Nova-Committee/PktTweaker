@@ -14,6 +14,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+import java.util.Collection;
+
 public class S2CMessage implements IMessage {
     private NBTTagCompound tag = new NBTTagCompound();
 
@@ -38,17 +40,19 @@ public class S2CMessage implements IMessage {
             final NBTTagCompound tag = message.getTag();
             final String id = tag.getString("id");
             final NBTBase msgTag = tag.getTag("msgTag");
-            final NetworkStrategies.S2CStrategy s = NetworkStrategies.getS2CStrategies().get(id);
-            if (s == null) {
+            final Collection<NetworkStrategies.S2CStrategy> s = NetworkStrategies.getS2CStrategies().get(id);
+            if (s.isEmpty()) {
                 PktTweaker.getLogger().error("No strategy matches <" + id + "> found!");
                 return null;
             }
             final Minecraft mc = Minecraft.getMinecraft();
             mc.addScheduledTask(() -> {
-                try {
-                    s.handle(CraftTweakerMC.getIPlayer(mc.player), CraftTweakerAPI.client, CraftTweakerMC.getIData(msgTag));
-                } catch (Exception e) {
-                    PktTweaker.getLogger().error("Exception caught in S2CMessage <" + id + ">...", e);
+                for (final NetworkStrategies.S2CStrategy y : s) {
+                    try {
+                        y.handle(CraftTweakerMC.getIPlayer(mc.player), CraftTweakerAPI.client, CraftTweakerMC.getIData(msgTag));
+                    } catch (Exception e) {
+                        PktTweaker.getLogger().error("Exception caught in S2CMessage <" + id + ">...", e);
+                    }
                 }
             });
             return null;

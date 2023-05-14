@@ -1,6 +1,8 @@
 package committee.nova.pkttwkr.storage;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableListMultimap;
+import com.google.common.collect.LinkedListMultimap;
+import com.google.common.collect.Multimap;
 import committee.nova.pkttwkr.PktTweaker;
 import committee.nova.pkttwkr.util.StringUtil;
 import crafttweaker.annotations.ZenRegister;
@@ -11,9 +13,6 @@ import crafttweaker.api.server.IServer;
 import net.minecraftforge.fml.common.eventhandler.Event;
 import org.apache.logging.log4j.Logger;
 import stanhebben.zenscript.annotations.ZenClass;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class NetworkStrategies {
     public static class StrategyRegisterEventInternal extends Event {
@@ -26,8 +25,8 @@ public class NetworkStrategies {
         }
     }
 
-    private static final HashMap<String, C2SStrategy> c2sStrategies = new HashMap<>();
-    private static final HashMap<String, S2CStrategy> s2cStrategies = new HashMap<>();
+    private static final Multimap<String, C2SStrategy> c2sStrategies = LinkedListMultimap.create();
+    private static final Multimap<String, S2CStrategy> s2cStrategies = LinkedListMultimap.create();
 
     @ZenRegister
     @ZenClass("pkttwkr.strategy.C2SStrategy")
@@ -73,11 +72,11 @@ public class NetworkStrategies {
         return true;
     }
 
-    public static Map<String, C2SStrategy> getC2SStrategies() {
-        return ImmutableMap.copyOf(c2sStrategies);
+    public static Multimap<String, C2SStrategy> getC2SStrategies() {
+        return ImmutableListMultimap.copyOf(c2sStrategies);
     }
 
-    public static Map<String, S2CStrategy> getS2CStrategies() {
-        return ImmutableMap.copyOf(s2cStrategies);
+    public static Multimap<String, S2CStrategy> getS2CStrategies() {
+        return ImmutableListMultimap.copyOf(s2cStrategies);
     }
 }

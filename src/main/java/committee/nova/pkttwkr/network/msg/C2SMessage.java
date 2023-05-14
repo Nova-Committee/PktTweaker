@@ -14,6 +14,8 @@ import net.minecraftforge.fml.common.network.simpleimpl.IMessageHandler;
 import net.minecraftforge.fml.common.network.simpleimpl.MessageContext;
 import net.minecraftforge.fml.relauncher.Side;
 
+import java.util.Collection;
+
 public class C2SMessage implements IMessage {
     private NBTTagCompound tag = new NBTTagCompound();
 
@@ -38,17 +40,19 @@ public class C2SMessage implements IMessage {
             final NBTTagCompound tag = message.getTag();
             final String id = tag.getString("id");
             final NBTBase msgTag = tag.getTag("msgTag");
-            final NetworkStrategies.C2SStrategy s = NetworkStrategies.getC2SStrategies().get(id);
-            if (s == null) {
+            final Collection<NetworkStrategies.C2SStrategy> s = NetworkStrategies.getC2SStrategies().get(id);
+            if (s.isEmpty()) {
                 PktTweaker.getLogger().error("No strategy matches <" + id + "> found!");
                 return null;
             }
             final EntityPlayerMP mp = ctx.getServerHandler().player;
             mp.getServerWorld().addScheduledTask(() -> {
-                try {
-                    s.handle(CraftTweakerMC.getIPlayer(mp), CraftTweakerAPI.server, CraftTweakerMC.getIData(msgTag));
-                } catch (Exception e) {
-                    PktTweaker.getLogger().error("Exception caught in C2SMessage <" + id + ">...", e);
+                for (final NetworkStrategies.C2SStrategy y : s) {
+                    try {
+                        y.handle(CraftTweakerMC.getIPlayer(mp), CraftTweakerAPI.server, CraftTweakerMC.getIData(msgTag));
+                    } catch (Exception e) {
+                        PktTweaker.getLogger().error("Exception caught in C2SMessage <" + id + ">...", e);
+                    }
                 }
             });
             return null;
